@@ -1,18 +1,15 @@
 name: Add codesandbox link
 
-on:
-  pull_request:
-    types: [opened]
-  # https://github.com/mshick/add-pr-comment/issues/25
-  pull_request_target:
-    types: [opened]
+on: pull_request
 
 jobs:
   codesandbox-comment:
     name: Add codesandbox link comment
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
     steps:
-      - uses: mshick/add-pr-comment@v1
+      - uses: mshick/add-pr-comment@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
