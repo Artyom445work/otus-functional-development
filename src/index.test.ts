@@ -1,29 +1,63 @@
-import {ExpenseTracker} from './index'
-import { describe, expect, test } from '@jest/globals'
+import { LocalStorageCalendar, FirebaseCalendar, Task } from './index'
+import { LocalStorage } from 'node-localstorage'
 
-describe('ExpenseTracker', () => {
-    let tracker: ExpenseTracker
+Object.defineProperty(global, 'localStorage', {
+    value: new LocalStorage('./scratch'),
+    writable: false, // Можно попробовать true, если потребуется
+    configurable: true,
+});
 
+describe('LocalStorageCalendar', () => {
+    let storage: LocalStorageCalendar
     beforeEach(() => {
-        tracker = new ExpenseTracker()
-        tracker.addExpense({ id: 1, date: '2024-01-01', amount: 100, category: 'Food' })
-        tracker.addExpense({ id: 2, date: '2024-01-02', amount: 200, category: 'Transport' })
-        tracker.addExpense({ id: 3, date: '2024-01-02', amount: 50, category: 'Food' })
+        storage = new LocalStorageCalendar()
+        localStorage.clear()
     })
 
-    test('should calculate expenses by category correctly', () => {
-        expect(tracker.getExpensesByCategory('2024-01-01', '2024-01-02')).toEqual({ Food: 150, Transport: 200 })
+    it('should create a task', async () => {
+        const task: Task = { id: '1', title: 'Test', date: '2025-01-01', status: 'pending' }
+        await storage.createTask(task)
+        expect(await storage.readTask('1')).toEqual(task)
     })
 
-    test('should calculate expenses by date correctly', () => {
-        expect(tracker.getExpensesByDate('2024-01-01', '2024-01-02')).toEqual({ '2024-01-01': 100, '2024-01-02': 250 })
+    it('should update a task', async () => {
+        const task: Task = { id: '1', title: 'Test', date: '2025-01-01', status: 'pending' }
+        await storage.createTask(task)
+        await storage.updateTask('1', { status: 'completed' })
+        expect((await storage.readTask('1'))?.status).toBe('completed')
     })
 
-    test('should filter and sum expenses correctly', () => {
-        expect(tracker.getFilteredSum(exp => exp.category === 'Food')).toBe(150)
+    it('should delete a task', async () => {
+        const task: Task = { id: '1', title: 'Test', date: '2025-01-01', status: 'pending' }
+        await storage.createTask(task)
+        await storage.deleteTask('1')
+        expect(await storage.readTask('1')).toBeNull()
+    })
+})
+
+describe('FirebaseCalendar', () => {
+    let storage: FirebaseCalendar
+    beforeEach(() => {
+        storage = new FirebaseCalendar()
     })
 
-    test('should sort categories by total sum', () => {
-        expect(tracker.getSortedCategoriesBySum('2024-01-01', '2024-01-02')).toEqual([['Transport', 200], ['Food', 150]])
+    it('should create a task', async () => {
+        const task: Task = { id: '1', title: 'Test', date: '2025-01-01', status: 'pending' }
+        await storage.createTask(task)
+        expect(await storage.readTask('1')).toEqual(task)
+    })
+
+    it('should update a task', async () => {
+        const task: Task = { id: '1', title: 'Test', date: '2025-01-01', status: 'pending' }
+        await storage.createTask(task)
+        await storage.updateTask('1', { status: 'completed' })
+        expect((await storage.readTask('1'))?.status).toBe('completed')
+    })
+
+    it('should delete a task', async () => {
+        const task: Task = { id: '1', title: 'Test', date: '2025-01-01', status: 'pending' }
+        await storage.createTask(task)
+        await storage.deleteTask('1')
+        expect(await storage.readTask('1')).toBeNull()
     })
 })
