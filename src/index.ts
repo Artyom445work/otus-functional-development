@@ -1,7 +1,3 @@
-interface Boba {
-    id: string
-}
-
 export interface CalendarStorage {
     createTask(task: Task): Promise<void>
     readTask(id: string): Promise<Task | null>
