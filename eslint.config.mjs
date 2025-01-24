@@ -12,8 +12,9 @@ export default tseslint.config(
       },
       // languageOptions: { globals: globals.jest  },
       rules: {
-        "no-unused-vars": "error",
-        "no-undef": "error",
+          // "no-unused-vars": "error",
+          "@typescript-eslint/no-unused-vars": "error",
+          "no-undef": "error",
       },
     }
 );
